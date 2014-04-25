@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 #endregion
 
-namespace PersistentObjectCache.netcore451
+namespace PersistentObjectCachenetcore451
 {
     /// <summary>   A persistent object cache. </summary>
     /// <remarks>   Sander.struijk, 25.04.2014. </remarks>

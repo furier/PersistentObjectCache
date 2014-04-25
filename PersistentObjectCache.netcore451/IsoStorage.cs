@@ -20,7 +20,7 @@ using Newtonsoft.Json;
 
 #endregion
 
-namespace PersistentObjectCache.netcore451
+namespace PersistentObjectCachenetcore451
 {
     /// <summary>   Values that represent StorageType. </summary>
     /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
