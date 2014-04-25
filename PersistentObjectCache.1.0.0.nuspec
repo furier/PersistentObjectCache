@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>PersistentObjectCache</id>
+        <version>1.0.0</version>
+        <title>Persistent Object Cache</title>
+        <authors>Sander Struijk</authors>
+        <owners>Sander Struijk</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Persistent Object Cache serializes objects and store them to disk as json.
+When retrieving objects cache time is validated, if cache time has been exceeded null is returned otherwise the object.</description>
+    </metadata>
+    <files>
+        <file src="PersistentObjectCache.netcore451\bin\Debug\PersistentObjectCache.netcore451.dll" target="lib\netcore451\PersistentObjectCache.netcore451.dll" />
+    </files>
+</package>

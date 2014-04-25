@@ -158,3 +158,4 @@ $RECYCLE.BIN/
 #NuGet
 packages/*
 !packages/repositories.config
+*.nupkg
