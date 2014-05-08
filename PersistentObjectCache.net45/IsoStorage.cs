@@ -153,6 +153,7 @@ namespace PersistentObjectCachenetcore451
         /// <returns>   The text asynchronous. </returns>
         private async Task<string> ReadTextAsync(string filePath)
         {
+            if(!File.Exists(filePath)) return string.Empty;
             using (var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
             {
                 var sb = new StringBuilder();

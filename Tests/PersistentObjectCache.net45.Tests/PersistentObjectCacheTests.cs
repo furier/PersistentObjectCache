@@ -29,5 +29,12 @@ namespace PersistentObjectCachenet45Tests
             testObject.Should().NotBeNull();
             testObject.Name.Should().Be("Sander");
         }
+
+        [TestMethod]
+        public void LoadAsyncFileDoesNotExistTest()
+        {
+            var testObject = PersistentObjectCache.GetObjectAsync<TestObject>("Test2").Result;
+            testObject.Should().BeNull();
+        }
     }
 }

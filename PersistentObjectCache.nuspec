@@ -2,15 +2,18 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>PersistentObjectCache</id>
-        <version>1.0.0.1</version>
+        <version>1.1.0.1</version>
         <title>Persistent Object Cache</title>
         <authors>Sander Struijk</authors>
         <owners>Sander Struijk</owners>
+        <projectUrl>https://github.com/furier/PersistentObjectCache</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Persistent Object Cache serializes objects and store them to disk as json.
 When retrieving objects cache time is validated, if cache time has been exceeded null is returned otherwise the object.</description>
+        <tags>Persistent Object Cache</tags>
     </metadata>
     <files>
-        <file src="PersistentObjectCache.netcore451\bin\Debug\PersistentObjectCache.netcore451.dll" target="lib\netcore451\PersistentObjectCache.netcore451.dll" />
+        <file src="PersistentObjectCache.net45\bin\Release\PersistentObjectCache.net45.dll" target="lib\net45\PersistentObjectCache.net45.dll" />
+        <file src="PersistentObjectCache.netcore451\bin\Release\PersistentObjectCache.netcore451.dll" target="lib\netcore451\PersistentObjectCache.netcore451.dll" />
     </files>
 </package>
