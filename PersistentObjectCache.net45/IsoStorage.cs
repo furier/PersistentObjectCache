@@ -3,19 +3,16 @@
 // // ***********************************************************************
 // // Author           : Sander Struijk
 // // ***********************************************************************
-// // <copyright file="IsoStorage.cs" company="Bouvet ASA">
-// //     Copyright (c) Bouvet ASA. All rights reserved.
-// // </copyright>
-// // ***********************************************************************
 
 #endregion
 
+
 #region Using statements
 
+using System.Text;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Newtonsoft.Json;
 
 #endregion
@@ -37,11 +34,8 @@ namespace PersistentObjectCachenetcore451
     /// <typeparam name="T">    Generic type parameter. </typeparam>
     internal class IsoStorage<T>
     {
-        /// <summary>   Information describing the application. </summary>
-        private readonly ApplicationData _appData = ApplicationData.Current;
-
         /// <summary>   Pathname of the storage folder. </summary>
-        private StorageFolder _storageFolder;
+        private string _storagePath;
 
         /// <summary>   Type of the storage. </summary>
         private StorageType _storageType;
@@ -71,13 +65,13 @@ namespace PersistentObjectCachenetcore451
                 switch (_storageType)
                 {
                     case StorageType.Local:
-                        _storageFolder = _appData.LocalFolder;
+                        _storagePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                         break;
                     case StorageType.Temporary:
-                        _storageFolder = _appData.TemporaryFolder;
+                        _storagePath = string.Format("{0}\\Temp", Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2));
                         break;
                     case StorageType.Roaming:
-                        _storageFolder = _appData.RoamingFolder;
+                        _storagePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                         break;
                     default:
                         throw new Exception(String.Format("Unknown StorageType: {0}", _storageType));
@@ -94,31 +88,9 @@ namespace PersistentObjectCachenetcore451
         {
             if (data == null)
                 return;
-            fileName = AppendExt(fileName);
-            var file = await _storageFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(file, JsonConvert.SerializeObject(data));
-        }
-
-        /// <summary>   Delete a file asynchronously. </summary>
-        /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-        /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
-        /// <param name="fileName"> . </param>
-        public async void DeleteAsync(string fileName)
-        {
-            fileName = AppendExt(fileName);
-            var file = await GetFileIfExistsAsync(fileName);
-            if (file != null)
-                await file.DeleteAsync();
-        }
-
-        /// <summary>   At the moment the only way to check if a file exists to catch an exception... :/. </summary>
-        /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-        /// <param name="fileName"> . </param>
-        /// <returns>   The file if exists asynchronous. </returns>
-        private async Task<StorageFile> GetFileIfExistsAsync(string fileName)
-        {
-            try { return await _storageFolder.GetFileAsync(fileName); }
-            catch { return null; }
+            fileName = PrependPath(AppendExt(fileName));
+            if (File.Exists(fileName)) File.Delete(fileName);
+            await WriteTextAsync(fileName, JsonConvert.SerializeObject(data));
         }
 
         /// <summary>   Load a given filename asynchronously. </summary>
@@ -130,9 +102,8 @@ namespace PersistentObjectCachenetcore451
         {
             try
             {
-                fileName = AppendExt(fileName);
-                var file = await _storageFolder.GetFileAsync(fileName);
-                var json = await FileIO.ReadTextAsync(file);
+                fileName = PrependPath(AppendExt(fileName));
+                var json = await ReadTextAsync(fileName);
                 return JsonConvert.DeserializeObject<T>(json);
             }
             catch (FileNotFoundException)
@@ -143,6 +114,15 @@ namespace PersistentObjectCachenetcore451
             }
         }
 
+        /// <summary>   Prepends the storage path. </summary>
+        /// <remarks>   Sander.struijk, 08.05.2014. </remarks>
+        /// <param name="fileName"> . </param>
+        /// <returns>   A string. </returns>
+        private string PrependPath(string fileName)
+        {
+            return Path.Combine(_storagePath, fileName);
+        }
+
         /// <summary>   Appends the file extension to the given filename. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
         /// <param name="fileName"> . </param>
@@ -150,6 +130,43 @@ namespace PersistentObjectCachenetcore451
         private string AppendExt(string fileName)
         {
             return fileName.Contains(".json") ? fileName : string.Format("{0}.json", fileName);
+        }
+
+        /// <summary>   Writes a text asynchronous. </summary>
+        /// <remarks>   Sander.struijk, 08.05.2014. </remarks>
+        /// <param name="filePath"> Full pathname of the file. </param>
+        /// <param name="text">     The text. </param>
+        /// <returns>   A Task. </returns>
+        private async Task WriteTextAsync(string filePath, string text)
+        {
+            var encodedText = Encoding.Unicode.GetBytes(text);
+
+            using (var sourceStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, true))
+            {
+                await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
+            }
+        }
+
+        /// <summary>   Reads text asynchronous. </summary>
+        /// <remarks>   Sander.struijk, 08.05.2014. </remarks>
+        /// <param name="filePath"> Full pathname of the file. </param>
+        /// <returns>   The text asynchronous. </returns>
+        private async Task<string> ReadTextAsync(string filePath)
+        {
+            using (var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+            {
+                var sb = new StringBuilder();
+
+                var buffer = new byte[0x1000];
+                int numRead;
+                while ((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                {
+                    var text = Encoding.Unicode.GetString(buffer, 0, numRead);
+                    sb.Append(text);
+                }
+
+                return sb.ToString();
+            }
         }
     }
 }
