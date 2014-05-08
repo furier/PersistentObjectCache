@@ -7,7 +7,7 @@
     <ProjectGuid>{8854B4EC-03B0-4AE4-851C-0BB948B6037F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PersistentObjectCache.net45</RootNamespace>
+    <RootNamespace>PersistentObjectCachenet45</RootNamespace>
     <AssemblyName>PersistentObjectCache.net45</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

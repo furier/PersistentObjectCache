@@ -9,7 +9,7 @@
     <ProjectGuid>{5949E0C7-2106-4B54-9A44-F9D6C8789AFD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PersistentObjectCache.netcore451</RootNamespace>
+    <RootNamespace>PersistentObjectCachenetcore451</RootNamespace>
     <AssemblyName>PersistentObjectCache.netcore451</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
