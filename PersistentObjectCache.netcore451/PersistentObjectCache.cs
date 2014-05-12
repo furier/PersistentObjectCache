@@ -52,7 +52,7 @@ namespace PersistentObjectCachenetcore451
         /// <typeparam name="T">    Generic type parameter. </typeparam>
         /// <param name="key">                      The key. </param>
         /// <param name="ignoreInvalidationTime">   (Optional) true to ignore invalidation time. </param>
-        /// <param name="storageType"></param>
+        /// <param name="storageType">              (Optional) </param>
         /// <returns>   The object asynchronous. </returns>
         public static async Task<T> GetObjectAsync<T>(string key, bool ignoreInvalidationTime = false, StorageType storageType = StorageType.Local)
         {
@@ -76,10 +76,10 @@ namespace PersistentObjectCachenetcore451
         /// <summary>   Sets object asynchronous. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
-        /// <param name="key">      The key. </param>
-        /// <param name="value">    The value. </param>
-        /// <param name="time">     (Optional) The time. </param>
-        /// <param name="storageType"></param>
+        /// <param name="key">          The key. </param>
+        /// <param name="value">        The value. </param>
+        /// <param name="time">         (Optional) The time. </param>
+        /// <param name="storageType">  (Optional) </param>
         /// <returns>   A T. </returns>
         public static T SetObjectAsync<T>(string key, T value, TimeSpan? time = null, StorageType storageType = StorageType.Local)
         {
@@ -87,6 +87,26 @@ namespace PersistentObjectCachenetcore451
             new IsoStorage<CacheObject<T>>(storageType).SaveAsync(key, cacheObject);
             if (!Objects.ContainsKey(key)) Objects.Add(key, cacheObject);
             return value;
+        }
+
+        /// <summary>   Clears the cache described by key. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        /// <param name="key">          The key. </param>
+        /// <param name="storageType">  (Optional) </param>
+        public static void ClearCache(string key, StorageType storageType = StorageType.Local)
+        {
+            var cacheObject = TryGetValue(key);
+            if(cacheObject != null) Objects.Remove(key);
+            new IsoStorage<CacheObject<object>>(storageType).DeleteAsync(key);
+        }
+
+        /// <summary>   Clears all cache described by storageType. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        /// <param name="storageType">  (Optional) </param>
+        public static void ClearAllCache(StorageType storageType = StorageType.Local)
+        {
+            Objects.Clear();
+            new IsoStorage<CacheObject<object>>(storageType).DeleteAllAsync();
         }
 
         /// <summary>   Try get value. </summary>

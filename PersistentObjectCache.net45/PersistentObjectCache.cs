@@ -89,6 +89,26 @@ namespace PersistentObjectCachenet45
             return value;
         }
 
+        /// <summary>   Clears the cache described by key. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        /// <param name="key">          The key. </param>
+        /// <param name="storageType">  (Optional) </param>
+        public static void ClearCache(string key, StorageType storageType = StorageType.Local)
+        {
+            var cacheObject = TryGetValue(key);
+            if (cacheObject != null) Objects.Remove(key);
+            new IsoStorage<CacheObject<object>>(storageType).Delete(key);
+        }
+
+        /// <summary>   Clears all cache described by storageType. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        /// <param name="storageType">  (Optional) </param>
+        public static void ClearAllCache(StorageType storageType = StorageType.Local)
+        {
+            Objects.Clear();
+            new IsoStorage<CacheObject<object>>(storageType).DeleteAll();
+        }
+
         /// <summary>   Try get value. </summary>
         /// <remarks>   Sander.struijk, 08.05.2014. </remarks>
         /// <param name="key">  The key. </param>

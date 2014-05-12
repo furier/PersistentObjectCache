@@ -6,6 +6,7 @@
 
 #endregion
 
+using System.Linq;
 
 #region Using statements
 
@@ -34,11 +35,14 @@ namespace PersistentObjectCachenetcore451
     /// <typeparam name="T">    Generic type parameter. </typeparam>
     internal class IsoStorage<T>
     {
-        /// <summary>   Pathname of the storage folder. </summary>
-        private string _storagePath;
+        /// <summary>   Pathname of the base storage folder. </summary>
+        private string _baseStoragePath;
 
         /// <summary>   Type of the storage. </summary>
         private StorageType _storageType;
+
+        /// <summary>   The file ending. </summary>
+        private const string FileEnding = ".cache.json";
 
         /// <summary>   Default constructor. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
@@ -51,6 +55,10 @@ namespace PersistentObjectCachenetcore451
         {
             StorageType = type;
         }
+
+        /// <summary>   Gets the full pathname of the storage file. </summary>
+        /// <value> The full pathname of the storage file. </value>
+        private string StoragePath { get { return Path.Combine(_baseStoragePath, "Cache"); } }
 
         /// <summary>   Gets or sets the type of the storage. </summary>
         /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
@@ -65,13 +73,13 @@ namespace PersistentObjectCachenetcore451
                 switch (_storageType)
                 {
                     case StorageType.Local:
-                        _storagePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                        _baseStoragePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                         break;
                     case StorageType.Temporary:
-                        _storagePath = string.Format("{0}\\Temp", Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2));
+                        _baseStoragePath = string.Format("{0}\\Temp", Environment.GetFolderPath(Environment.SpecialFolder.System).Substring(0, 2));
                         break;
                     case StorageType.Roaming:
-                        _storagePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                        _baseStoragePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                         break;
                     default:
                         throw new Exception(String.Format("Unknown StorageType: {0}", _storageType));
@@ -90,6 +98,7 @@ namespace PersistentObjectCachenetcore451
                 return;
             fileName = PrependPath(AppendExt(fileName));
             if (File.Exists(fileName)) File.Delete(fileName);
+            else if (!Directory.Exists(StoragePath)) Directory.CreateDirectory(StoragePath);
             await WriteTextAsync(fileName, JsonConvert.SerializeObject(data));
         }
 
@@ -114,13 +123,34 @@ namespace PersistentObjectCachenetcore451
             }
         }
 
+        /// <summary>   Deletes the given fileName. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        /// <param name="fileName"> . </param>
+        public void Delete(string fileName)
+        {
+            fileName = PrependPath(AppendExt(fileName));
+            if (File.Exists(fileName))
+                File.Delete(fileName);
+        }
+
+        /// <summary>   Deletes all files. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        public void DeleteAll()
+        {
+            var files = Directory.EnumerateFiles(StoragePath).Where(file => file.EndsWith(FileEnding));
+            foreach(var file in files)
+            {
+                Delete(file);
+            }
+        }
+
         /// <summary>   Prepends the storage path. </summary>
         /// <remarks>   Sander.struijk, 08.05.2014. </remarks>
         /// <param name="fileName"> . </param>
         /// <returns>   A string. </returns>
         private string PrependPath(string fileName)
         {
-            return Path.Combine(_storagePath, fileName);
+            return Path.Combine(StoragePath, fileName);
         }
 
         /// <summary>   Appends the file extension to the given filename. </summary>
@@ -129,7 +159,7 @@ namespace PersistentObjectCachenetcore451
         /// <returns>   A string. </returns>
         private string AppendExt(string fileName)
         {
-            return fileName.Contains(".json") ? fileName : string.Format("{0}.json", fileName);
+            return fileName.EndsWith(".json") ? fileName.EndsWith(FileEnding) ? fileName : string.Format("{0}{1}", fileName, FileEnding) : string.Format("{0}{1}", fileName, FileEnding);
         }
 
         /// <summary>   Writes a text asynchronous. </summary>

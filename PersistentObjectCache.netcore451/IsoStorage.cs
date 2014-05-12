@@ -10,6 +10,9 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
+
 #region Using statements
 
 using System;
@@ -45,6 +48,9 @@ namespace PersistentObjectCachenetcore451
 
         /// <summary>   Type of the storage. </summary>
         private StorageType _storageType;
+
+        /// <summary>   The file ending. </summary>
+        private const string FileEnding = ".cache.json";
 
         /// <summary>   Default constructor. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
@@ -111,6 +117,25 @@ namespace PersistentObjectCachenetcore451
                 await file.DeleteAsync();
         }
 
+        /// <summary>   Deletes all asynchronous. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        public async void DeleteAllAsync()
+        {
+            var files = await GetAllFilesAsync();
+            if (files != null)
+                foreach(var file in files.Where(file => file.Name.EndsWith(FileEnding)).Select(file => file.Name))
+                    DeleteAsync(file);
+        }
+
+        /// <summary>   Gets all files asynchronous. </summary>
+        /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
+        /// <returns>   all files asynchronous. </returns>
+        private async Task<IReadOnlyList<StorageFile>> GetAllFilesAsync()
+        {
+            try { return await _storageFolder.GetFilesAsync(); }
+            catch { return null; }
+        }
+
         /// <summary>   At the moment the only way to check if a file exists to catch an exception... :/. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
         /// <param name="fileName"> . </param>
@@ -149,7 +174,7 @@ namespace PersistentObjectCachenetcore451
         /// <returns>   A string. </returns>
         private string AppendExt(string fileName)
         {
-            return fileName.Contains(".json") ? fileName : string.Format("{0}.json", fileName);
+            return fileName.EndsWith(".json") ? fileName.EndsWith(FileEnding) ? fileName : string.Format("{0}{1}", fileName, FileEnding) : string.Format("{0}{1}", fileName, FileEnding);
         }
     }
 }

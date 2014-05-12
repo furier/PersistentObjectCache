@@ -17,17 +17,20 @@ namespace PersistentObjectCachenet45Tests
     public class PersistentObjectCacheTests
     {
         [TestMethod]
-        public void SaveAsyncTest()
+        public void SaveAndLoadAndDeleteTest()
         {
-            PersistentObjectCache.SetObjectAsync("Test", new TestObject {Name = "Sander"});
-        }
+            const string key = "Test";
 
-        [TestMethod]
-        public void LoadAsyncTest()
-        {
-            var testObject = PersistentObjectCache.GetObjectAsync<TestObject>("Test").Result;
+            PersistentObjectCache.SetObjectAsync(key, new TestObject {Name = "Sander"});
+
+            var testObject = PersistentObjectCache.GetObjectAsync<TestObject>(key).Result;
             testObject.Should().NotBeNull();
             testObject.Name.Should().Be("Sander");
+
+            PersistentObjectCache.ClearCache(key);
+            testObject = PersistentObjectCache.GetObjectAsync<TestObject>(key).Result;
+            testObject.Should().BeNull();
+
         }
 
         [TestMethod]
