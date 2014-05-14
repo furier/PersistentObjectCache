@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>PersistentObjectCache</id>
-        <version>1.2.0.0</version>
+        <version>1.2.0.1</version>
         <title>Persistent Object Cache</title>
         <authors>Sander Struijk</authors>
         <owners>Sander Struijk</owners>
@@ -12,6 +12,14 @@
 When retrieving objects cache time is validated, if cache time has been exceeded null is returned otherwise the object.</description>
         <releaseNotes>- added clear cache functionality</releaseNotes>
         <tags>Persistent Object Cache</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Newtonsoft.Json" version="6.0.3" />
+            </group>
+            <group targetFramework=".NETCore4.5.1">
+                <dependency id="Newtonsoft.Json" version="6.0.3" />
+            </group>
+        </dependencies>
     </metadata>
     <files>
         <file src="PersistentObjectCache.net45\bin\Release\PersistentObjectCache.net45.dll" target="lib\net45\PersistentObjectCache.net45.dll" />
