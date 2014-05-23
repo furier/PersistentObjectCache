@@ -1,10 +1,15 @@
 ﻿#region File Header
 
-// // ***********************************************************************
-// // Author           : Sander Struijk
-// // ***********************************************************************
+// ***********************************************************************
+// Author	: Sander Struijk
+// File		: IsoStorage.cs
+// Created	: 2014 05 08 09:43
+// Updated	: 2014 05 23 12:32
+// ***********************************************************************
 
 #endregion
+
+#region Using statements
 
 using System.Linq;
 
@@ -18,7 +23,10 @@ using Newtonsoft.Json;
 
 #endregion
 
+#endregion
+
 // ReSharper disable once CheckNamespace
+
 namespace PersistentObjectCachenetcore451
 {
     /// <summary>   Values that represent StorageType. </summary>
@@ -35,18 +43,18 @@ namespace PersistentObjectCachenetcore451
     /// <typeparam name="T">    Generic type parameter. </typeparam>
     internal class IsoStorage<T>
     {
+        /// <summary>   The file ending. </summary>
+        private const string FileEnding = ".cache.json";
+
         /// <summary>   Pathname of the base storage folder. </summary>
         private string _baseStoragePath;
 
         /// <summary>   Type of the storage. </summary>
         private StorageType _storageType;
 
-        /// <summary>   The file ending. </summary>
-        private const string FileEnding = ".cache.json";
-
         /// <summary>   Default constructor. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-        public IsoStorage() : this(StorageType.Local) { }
+        public IsoStorage() : this(StorageType.Local) {}
 
         /// <summary>   Constructor. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
@@ -58,7 +66,10 @@ namespace PersistentObjectCachenetcore451
 
         /// <summary>   Gets the full pathname of the storage file. </summary>
         /// <value> The full pathname of the storage file. </value>
-        private string StoragePath { get { return Path.Combine(_baseStoragePath, "Cache"); } }
+        private string StoragePath
+        {
+            get { return Path.Combine(_baseStoragePath, "Cache"); }
+        }
 
         /// <summary>   Gets or sets the type of the storage. </summary>
         /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
@@ -70,7 +81,7 @@ namespace PersistentObjectCachenetcore451
             {
                 _storageType = value;
                 // set the storage folder
-                switch (_storageType)
+                switch(_storageType)
                 {
                     case StorageType.Local:
                         _baseStoragePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -94,11 +105,11 @@ namespace PersistentObjectCachenetcore451
         /// <param name="data">         The data. </param>
         public async void SaveAsync(string fileName, T data)
         {
-            if (data == null)
+            if(data == null)
                 return;
             fileName = PrependPath(AppendExt(fileName));
-            if (File.Exists(fileName)) File.Delete(fileName);
-            else if (!Directory.Exists(StoragePath)) Directory.CreateDirectory(StoragePath);
+            if(File.Exists(fileName)) File.Delete(fileName);
+            else if(!Directory.Exists(StoragePath)) Directory.CreateDirectory(StoragePath);
             await WriteTextAsync(fileName, JsonConvert.SerializeObject(data));
         }
 
@@ -115,7 +126,7 @@ namespace PersistentObjectCachenetcore451
                 var json = await ReadTextAsync(fileName);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (FileNotFoundException)
+            catch(FileNotFoundException)
             {
                 //file not existing is perfectly valid so simply return the default 
                 return default(T);
@@ -129,7 +140,7 @@ namespace PersistentObjectCachenetcore451
         public void Delete(string fileName)
         {
             fileName = PrependPath(AppendExt(fileName));
-            if (File.Exists(fileName))
+            if(File.Exists(fileName))
                 File.Delete(fileName);
         }
 
@@ -171,7 +182,7 @@ namespace PersistentObjectCachenetcore451
         {
             var encodedText = Encoding.Unicode.GetBytes(text);
 
-            using (var sourceStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, true))
+            using(var sourceStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, true))
             {
                 await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
             }
@@ -184,13 +195,13 @@ namespace PersistentObjectCachenetcore451
         private async Task<string> ReadTextAsync(string filePath)
         {
             if(!File.Exists(filePath)) return string.Empty;
-            using (var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+            using(var sourceStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
             {
                 var sb = new StringBuilder();
 
                 var buffer = new byte[0x1000];
                 int numRead;
-                while ((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                while((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
                 {
                     var text = Encoding.Unicode.GetString(buffer, 0, numRead);
                     sb.Append(text);

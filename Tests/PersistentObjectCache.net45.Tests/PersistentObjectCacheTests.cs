@@ -1,9 +1,25 @@
-﻿using System.Runtime.Serialization;
+﻿#region File Header
+
+// ***********************************************************************
+// Author	: Sander Struijk
+// File		: PersistentObjectCacheTests.cs
+// Created	: 2014 05 08 10:26
+// Updated	: 2014 05 23 12:32
+// ***********************************************************************
+
+#endregion
+
+#region Using statements
+
+using System.Runtime.Serialization;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PersistentObjectCachenet45;
 
+#endregion
+
 // ReSharper disable once CheckNamespace
+
 namespace PersistentObjectCachenet45Tests
 {
     [DataContract]
@@ -30,7 +46,6 @@ namespace PersistentObjectCachenet45Tests
             PersistentObjectCache.ClearCache(key);
             testObject = PersistentObjectCache.GetObjectAsync<TestObject>(key).Result;
             testObject.Should().BeNull();
-
         }
 
         [TestMethod]

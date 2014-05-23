@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>PersistentObjectCache</id>
-        <version>1.2.0.1</version>
+        <version>1.3.0.0</version>
         <title>Persistent Object Cache</title>
         <authors>Sander Struijk</authors>
         <owners>Sander Struijk</owners>
@@ -10,7 +10,12 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Persistent Object Cache serializes objects and store them to disk as json.
 When retrieving objects cache time is validated, if cache time has been exceeded null is returned otherwise the object.</description>
-        <releaseNotes>- added clear cache functionality</releaseNotes>
+        <releaseNotes>1.3.0.0
+- added function for checking if cache contains object identified by key.
+- added function for checking if cache identified by key has expired.
+
+1.2.0.1
+- added clear cache functionality</releaseNotes>
         <tags>Persistent Object Cache</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.5">

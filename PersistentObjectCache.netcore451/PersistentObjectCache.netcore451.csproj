@@ -103,6 +103,8 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CacheObject.cs" />
+    <Compile Include="ICacheObject.cs" />
     <Compile Include="IsoStorage.cs" />
     <Compile Include="PersistentObjectCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

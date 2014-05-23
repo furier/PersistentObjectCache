@@ -1,12 +1,11 @@
 ﻿#region File Header
 
-// // ***********************************************************************
-// // Author           : Sander Struijk
-// // ***********************************************************************
-// // <copyright file="PersistentObjectCache.cs" company="Bouvet ASA">
-// //     Copyright (c) Bouvet ASA. All rights reserved.
-// // </copyright>
-// // ***********************************************************************
+// ***********************************************************************
+// Author	: Sander Struijk
+// File		: PersistentObjectCache.cs
+// Created	: 2014 04 25 14:43
+// Updated	: 2014 05 23 12:32
+// ***********************************************************************
 
 #endregion
 
@@ -14,7 +13,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 #endregion
@@ -73,6 +71,64 @@ namespace PersistentObjectCachenetcore451
             return default(T);
         }
 
+        /// <summary>   Returns if the cache contains the object associated with the provided key. </summary>
+        /// <remarks>   Sander.struijk, 23.05.2014. </remarks>
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        /// <param name="key">          The key. </param>
+        /// <param name="storageType">  (Optional) </param>
+        /// <returns>   A Task&lt;bool&gt; </returns>
+        public static async Task<bool> ContainsAsync<T>(string key, StorageType storageType = StorageType.Local)
+        {
+            var cacheObject = TryGetValue(key);
+            if(cacheObject != null) return true;
+
+            try
+            {
+                var isoCachedObject = await new IsoStorage<CacheObject<T>>(storageType).LoadAsync(key);
+                if(isoCachedObject != null && isoCachedObject.GetValue(true) != null)
+                {
+                    if (!Objects.ContainsKey(key)) 
+                        Objects.Add(key, isoCachedObject);
+                    return true;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return false;
+            }
+
+            return false;
+        }
+
+        /// <summary>   Returns if the cached object associated with the provided key has expired. </summary>
+        /// <remarks>   Sander.struijk, 23.05.2014. </remarks>
+        /// <typeparam name="T">    Generic type parameter. </typeparam>
+        /// <param name="key">          The key. </param>
+        /// <param name="storageType">  (Optional) </param>
+        /// <returns>   A Task&lt;bool&gt; </returns>
+        public static async Task<bool> HasExpired<T>(string key, StorageType storageType = StorageType.Local)
+        {
+            var cacheObject = TryGetValue(key);
+            if(cacheObject != null && cacheObject.GetValue() != null) return false;
+
+            try
+            {
+                var isoCachedObject = await new IsoStorage<CacheObject<T>>(storageType).LoadAsync(key);
+                if (isoCachedObject != null && isoCachedObject.GetValue() != null)
+                {
+                    if (!Objects.ContainsKey(key))
+                        Objects.Add(key, isoCachedObject);
+                    return false;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return true;
+            }
+
+            return true;
+        }
+
         /// <summary>   Sets object asynchronous. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
         /// <typeparam name="T">    Generic type parameter. </typeparam>
@@ -96,7 +152,7 @@ namespace PersistentObjectCachenetcore451
         public static void ClearCache(string key, StorageType storageType = StorageType.Local)
         {
             var cacheObject = TryGetValue(key);
-            if(cacheObject != null) Objects.Remove(key);
+            if (cacheObject != null) Objects.Remove(key);
             new IsoStorage<CacheObject<object>>(storageType).DeleteAsync(key);
         }
 
@@ -118,55 +174,6 @@ namespace PersistentObjectCachenetcore451
             ICacheObject value;
             Objects.TryGetValue(key, out value);
             return value;
-        }
-    }
-
-    /// <summary>   Interface for cache object. </summary>
-    /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-    public interface ICacheObject
-    {
-        /// <summary>   Gets the value. </summary>
-        /// <value> The value. </value>
-        object Value { get; }
-
-        /// <summary>   Gets a value. </summary>
-        /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-        /// <param name="ignoreInvalidationTime">   true to ignore invalidation time. </param>
-        /// <returns>   The value. </returns>
-        object GetValue(bool ignoreInvalidationTime);
-    }
-
-    /// <summary>   A cache object. </summary>
-    /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-    [DataContract]
-    public class CacheObject<T> : ICacheObject
-    {
-        /// <summary>   The date time when this object was first cached. </summary>
-        [DataMember]
-        public DateTime CachedDateTime { get; set; }
-
-        /// <summary>   The invalidation time. </summary>
-        [DataMember]
-        public TimeSpan InvalidationTime { get; set; }
-
-        /// <summary>   The cached value. </summary>
-        [DataMember]
-        public T CachedValue { get; set; }
-
-        /// <summary>   Gets the value. </summary>
-        /// <value> The value. </value>
-        public object Value
-        {
-            get { return CachedDateTime.Add(InvalidationTime).CompareTo(DateTime.Now) >= 0 ? CachedValue as object : null; }
-        }
-
-        /// <summary>   Gets a value. </summary>
-        /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-        /// <param name="ignoreInvalidationTime">   (Optional) true to ignore invalidation time. </param>
-        /// <returns>   The value. </returns>
-        public object GetValue(bool ignoreInvalidationTime = false)
-        {
-            return ignoreInvalidationTime ? CachedValue : Value;
         }
     }
 }

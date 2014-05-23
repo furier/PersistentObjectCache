@@ -1,14 +1,15 @@
 ﻿#region File Header
 
-// // ***********************************************************************
-// // Author           : Sander Struijk
-// // ***********************************************************************
-// // <copyright file="IsoStorage.cs" company="Bouvet ASA">
-// //     Copyright (c) Bouvet ASA. All rights reserved.
-// // </copyright>
-// // ***********************************************************************
+// ***********************************************************************
+// Author	: Sander Struijk
+// File		: IsoStorage.cs
+// Created	: 2014 04 25 14:41
+// Updated	: 2014 05 23 12:32
+// ***********************************************************************
 
 #endregion
+
+#region Using statements
 
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,10 @@ using Newtonsoft.Json;
 
 #endregion
 
+#endregion
+
 // ReSharper disable once CheckNamespace
+
 namespace PersistentObjectCachenetcore451
 {
     /// <summary>   Values that represent StorageType. </summary>
@@ -40,6 +44,9 @@ namespace PersistentObjectCachenetcore451
     /// <typeparam name="T">    Generic type parameter. </typeparam>
     internal class IsoStorage<T>
     {
+        /// <summary>   The file ending. </summary>
+        private const string FileEnding = ".cache.json";
+
         /// <summary>   Information describing the application. </summary>
         private readonly ApplicationData _appData = ApplicationData.Current;
 
@@ -49,12 +56,9 @@ namespace PersistentObjectCachenetcore451
         /// <summary>   Type of the storage. </summary>
         private StorageType _storageType;
 
-        /// <summary>   The file ending. </summary>
-        private const string FileEnding = ".cache.json";
-
         /// <summary>   Default constructor. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
-        public IsoStorage() : this(StorageType.Local) { }
+        public IsoStorage() : this(StorageType.Local) {}
 
         /// <summary>   Constructor. </summary>
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
@@ -74,7 +78,7 @@ namespace PersistentObjectCachenetcore451
             {
                 _storageType = value;
                 // set the storage folder
-                switch (_storageType)
+                switch(_storageType)
                 {
                     case StorageType.Local:
                         _storageFolder = _appData.LocalFolder;
@@ -98,7 +102,7 @@ namespace PersistentObjectCachenetcore451
         /// <param name="data">         The data. </param>
         public async void SaveAsync(string fileName, T data)
         {
-            if (data == null)
+            if(data == null)
                 return;
             fileName = AppendExt(fileName);
             var file = await _storageFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
@@ -113,7 +117,7 @@ namespace PersistentObjectCachenetcore451
         {
             fileName = AppendExt(fileName);
             var file = await GetFileIfExistsAsync(fileName);
-            if (file != null)
+            if(file != null)
                 await file.DeleteAsync();
         }
 
@@ -122,7 +126,7 @@ namespace PersistentObjectCachenetcore451
         public async void DeleteAllAsync()
         {
             var files = await GetAllFilesAsync();
-            if (files != null)
+            if(files != null)
                 foreach(var file in files.Where(file => file.Name.EndsWith(FileEnding)).Select(file => file.Name))
                     DeleteAsync(file);
         }
@@ -132,8 +136,14 @@ namespace PersistentObjectCachenetcore451
         /// <returns>   all files asynchronous. </returns>
         private async Task<IReadOnlyList<StorageFile>> GetAllFilesAsync()
         {
-            try { return await _storageFolder.GetFilesAsync(); }
-            catch { return null; }
+            try
+            {
+                return await _storageFolder.GetFilesAsync();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>   At the moment the only way to check if a file exists to catch an exception... :/. </summary>
@@ -142,8 +152,14 @@ namespace PersistentObjectCachenetcore451
         /// <returns>   The file if exists asynchronous. </returns>
         private async Task<StorageFile> GetFileIfExistsAsync(string fileName)
         {
-            try { return await _storageFolder.GetFileAsync(fileName); }
-            catch { return null; }
+            try
+            {
+                return await _storageFolder.GetFileAsync(fileName);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>   Load a given filename asynchronously. </summary>
@@ -160,7 +176,7 @@ namespace PersistentObjectCachenetcore451
                 var json = await FileIO.ReadTextAsync(file);
                 return JsonConvert.DeserializeObject<T>(json);
             }
-            catch (FileNotFoundException)
+            catch(FileNotFoundException)
             {
                 //file not existing is perfectly valid so simply return the default 
                 return default(T);
