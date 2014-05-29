@@ -13,7 +13,7 @@ Usage
 
     var loadedIstance = await PersistentObjectCache.GetObjectAsync<SerialicableClass>("Key");
     
-    var savedInstance = PersistentObjectCache.SetObjectAsync<SerialicableClass>("Key", instance2Save);
+    var savedInstance = PersistentObjectCache.SetObjectAsync<SerializableClass>("Key", instance2Save);
 
 The MIT License (MIT)
 =============
