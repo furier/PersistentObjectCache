@@ -11,7 +11,7 @@ Installation
 Usage
 =====
 
-    var loadedIstance = await PersistentObjectCache.GetObjectAsync<SerialicableClass>("Key");
+    var loadedIstance = await PersistentObjectCache.GetObjectAsync<SerializableClass>("Key");
     
     var savedInstance = PersistentObjectCache.SetObjectAsync<SerializableClass>("Key", instance2Save);
 
