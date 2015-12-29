@@ -103,7 +103,7 @@ namespace PersistentObjectCachenetcore451
         /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
         /// <param name="fileName">     . </param>
         /// <param name="data">         The data. </param>
-        public async void SaveAsync(string fileName, T data)
+        public async Task SaveAsync(string fileName, T data)
         {
             if(data == null)
                 return;
@@ -128,7 +128,7 @@ namespace PersistentObjectCachenetcore451
             }
             catch(FileNotFoundException)
             {
-                //file not existing is perfectly valid so simply return the default 
+                //file not existing is perfectly valid so simply return the default
                 return default(T);
                 //throw;
             }

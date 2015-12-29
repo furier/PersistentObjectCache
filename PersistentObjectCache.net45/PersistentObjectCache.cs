@@ -140,10 +140,10 @@ namespace PersistentObjectCachenet45
         /// <param name="time">         (Optional) the time. </param>
         /// <param name="storageType">  (Optional) type of the storage. </param>
         /// <returns>   A T. </returns>
-        public static T SetObjectAsync<T>(string key, T value, TimeSpan? time = null, StorageType storageType = StorageType.Local)
+        public static async Task<T> SetObjectAsync<T>(string key, T value, TimeSpan? time = null, StorageType storageType = StorageType.Local)
         {
             var cacheObject = new CacheObject<T> {InvalidationTime = time ?? _defaultInvalidationTime, CachedValue = value, CachedDateTime = DateTime.Now};
-            new IsoStorage<CacheObject<T>>(storageType).SaveAsync(key, cacheObject);
+            await new IsoStorage<CacheObject<T>>(storageType).SaveAsync(key, cacheObject);
             if(!Objects.ContainsKey(key)) Objects.Add(key, cacheObject);
             return value;
         }
