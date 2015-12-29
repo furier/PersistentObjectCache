@@ -100,7 +100,7 @@ namespace PersistentObjectCachenetcore451
         /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
         /// <param name="fileName">     . </param>
         /// <param name="data">         The data. </param>
-        public async void SaveAsync(string fileName, T data)
+        public async Task SaveAsync(string fileName, T data)
         {
             if(data == null)
                 return;
@@ -113,7 +113,7 @@ namespace PersistentObjectCachenetcore451
         /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
         /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
         /// <param name="fileName"> . </param>
-        public async void DeleteAsync(string fileName)
+        public async Task DeleteAsync(string fileName)
         {
             fileName = AppendExt(fileName);
             var file = await GetFileIfExistsAsync(fileName);
@@ -123,12 +123,11 @@ namespace PersistentObjectCachenetcore451
 
         /// <summary>   Deletes all asynchronous. </summary>
         /// <remarks>   Sander.struijk, 12.05.2014. </remarks>
-        public async void DeleteAllAsync()
+        public async Task DeleteAllAsync()
         {
             var files = await GetAllFilesAsync();
-            if(files != null)
-                foreach(var file in files.Where(file => file.Name.EndsWith(FileEnding)).Select(file => file.Name))
-                    DeleteAsync(file);
+            if (files != null)
+                await Task.WhenAll(files.Where(file => file.Name.EndsWith(FileEnding)).Select(file => file.Name).Select(DeleteAsync).ToArray());
         }
 
         /// <summary>   Gets all files asynchronous. </summary>
@@ -178,7 +177,7 @@ namespace PersistentObjectCachenetcore451
             }
             catch(FileNotFoundException)
             {
-                //file not existing is perfectly valid so simply return the default 
+                //file not existing is perfectly valid so simply return the default
                 return default(T);
                 //throw;
             }

@@ -87,7 +87,7 @@ namespace PersistentObjectCachenetcore451
                 var isoCachedObject = await new IsoStorage<CacheObject<T>>(storageType).LoadAsync(key);
                 if(isoCachedObject != null && isoCachedObject.GetValue(true) != null)
                 {
-                    if (!Objects.ContainsKey(key)) 
+                    if (!Objects.ContainsKey(key))
                         Objects.Add(key, isoCachedObject);
                     return true;
                 }
@@ -137,10 +137,10 @@ namespace PersistentObjectCachenetcore451
         /// <param name="time">         (Optional) The time. </param>
         /// <param name="storageType">  (Optional) </param>
         /// <returns>   A T. </returns>
-        public static T SetObjectAsync<T>(string key, T value, TimeSpan? time = null, StorageType storageType = StorageType.Local)
+        public static async Task<T> SetObjectAsync<T>(string key, T value, TimeSpan? time = null, StorageType storageType = StorageType.Local)
         {
             var cacheObject = new CacheObject<T> { InvalidationTime = time ?? _defaultInvalidationTime, CachedValue = value, CachedDateTime = DateTime.Now };
-            new IsoStorage<CacheObject<T>>(storageType).SaveAsync(key, cacheObject);
+            await new IsoStorage<CacheObject<T>>(storageType).SaveAsync(key, cacheObject);
             if (!Objects.ContainsKey(key)) Objects.Add(key, cacheObject);
             return value;
         }
