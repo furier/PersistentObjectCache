@@ -33,9 +33,25 @@ namespace PersistentObjectCachenetcore451
     /// <remarks>   Sander.struijk, 25.04.2014. </remarks>
     public enum StorageType
     {
+        /// <summary>
+        /// Location of Environment.SpecialFolder.LocalApplicationData
+        /// </summary>
         Local,
+
+        /// <summary>
+        /// The OS System folder temp directory
+        /// </summary>
         Temporary,
-        Roaming
+
+        /// <summary>
+        /// Roaming folder located at Environment.SpecialFolder.ApplicationData
+        /// </summary>
+        Roaming,
+
+        /// <summary>
+        /// Location provided by AppDomain.CurrentDomain.GetData("DataDirectory")
+        /// </summary>
+        AppDomainData
     }
 
     /// <summary>   An ISO storage. </summary>
@@ -91,6 +107,9 @@ namespace PersistentObjectCachenetcore451
                         break;
                     case StorageType.Roaming:
                         _baseStoragePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                        break;
+                    case StorageType.AppDomainData:
+                        _baseStoragePath = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
                         break;
                     default:
                         throw new Exception(String.Format("Unknown StorageType: {0}", _storageType));
